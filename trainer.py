@@ -270,12 +270,14 @@ class TrainerClassifier():
 
 
   def predict(self, dataset, *,
-            batch_size = 32, num_workers = 4, shuffle=True,
+            batch_size = 32, num_workers = 4, shuffle=False,
             return_targets=False):
     """
     Calculates the classes predictions in the entire DataLoader
     Args:
-        loader (DataLoader): loader containing images and targets
+        dataset (Dataset): dataset containing images and targets
+        batch_size (int, default 32): size of each batch
+        num_workers (int, default 4): number of parallel threads
         return_targets (bool, default False): returns list of targets after predictions
     """
 
@@ -403,8 +405,12 @@ class TrainerClassifier():
     Runs the cycle of training and validation along some epochs
 
     Args:
-        train_loader (DataLoader): training loader with images and targets
-        valid_loader (DataLoader, optional): validation loader, valid skipped if omitted
+        train_dataset (Dataset): train dataset containing images and targets
+        valid_dataset (Dataset, optional): validation dataset, valid skipped if omitted
+        batch_size (int, default 32): size of each batch
+        num_workers (int, default 4): number of parallel threads
+        shuffle (bool, default True): random sort of train DataLoader batches
+        weights (torch.tensor, optional): class weigths for loss function to compensate imbalance
         max_epochs (int, default 10): maximum number of epochs to run the train and valid cycle
         early_stop_epochs (int, default 5): maximum number of epochs to run without improving valid loss
     """
@@ -419,7 +425,7 @@ class TrainerClassifier():
     
     if valid_dataset is not None:
         valid_loader = self.create_loader(valid_dataset,
-             batch_size = batch_size, num_workers = num_workers, shuffle=shuffle)
+             batch_size = batch_size, num_workers = num_workers, shuffle=False)
         
     self.weights = weights
     if self.weights is None: self.weights = self.default_weights(train_dataset)
