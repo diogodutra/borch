@@ -423,7 +423,7 @@ class TrainerClassifier():
         
     self.weights = weights
     if self.weights is None: self.weights = self.default_weights(train_dataset)
-    self.weights = torch.Tensor(self.weights).to(trainer.device)
+    self.weights = torch.Tensor(self.weights).to(self.device)
     self.loss_function = loss_function(weight=self.weights)
     
     for self.epoch in range(self.epoch, self.epoch + max_epochs):
