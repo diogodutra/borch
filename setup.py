@@ -12,9 +12,9 @@ from shutil import rmtree
 from setuptools import find_packages, setup, Command
 
 # Package meta-data.
-NAME = 'pytorch_boilerplate'
-DESCRIPTION = 'Resusable modules to support training of neural networks with PyTorch.'
-URL = 'https://github.com/diogodutra/pytorch_boilerplate'
+NAME = 'borch'
+DESCRIPTION = 'PyTorch Boilerplate with resusable modules to support training of neural networks.'
+URL = 'https://github.com/diogodutra/borch'
 EMAIL = 'diogodutra@gmail.com'
 AUTHOR = 'Diogo Dutra'
 REQUIRES_PYTHON = '>=3.6.0'
@@ -22,14 +22,6 @@ VERSION = '0.1.0'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    # 'gc',
-    # 'os', 'copy',
-    # 'time', 'datetime',
-    # 'itertools', 'collections',
-    # 'matplotlib', 
-    # 'math', 'numpy', 'sklearn', 
-    # 'cv2', 'PIL', 'torchvision', 'torch',
-    # 'tqdm',
 ]
 
 # What packages are optional?
