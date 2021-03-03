@@ -10,8 +10,8 @@ import torch
 from torch.utils.data import Dataset
 
 
-class ClassificationDataset(Dataset):
-    """Multi-Class Classification dataset."""
+class DatasetClassifier(Dataset):
+    """Multi-class classification dataset."""
 
 
     def __init__(self, root_dir, transform=None, *,
