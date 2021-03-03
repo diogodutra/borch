@@ -23,10 +23,10 @@ VERSION = '0.1.0'
 # What packages are required for this module to be executed?
 REQUIRED = [
     # 'gc',
-    'os', 'copy',
-    'time', 'datetime',
-    'itertools', 'collections',
-    'matplotlib', 
+    # 'os', 'copy',
+    # 'time', 'datetime',
+    # 'itertools', 'collections',
+    # 'matplotlib', 
     'math', 'numpy', 'sklearn', 
     'cv2', 'PIL', 'torchvision', 'torch',
     'tqdm',
