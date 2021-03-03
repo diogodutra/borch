@@ -27,9 +27,9 @@ REQUIRED = [
     # 'time', 'datetime',
     # 'itertools', 'collections',
     # 'matplotlib', 
-    'math', 'numpy', 'sklearn', 
-    'cv2', 'PIL', 'torchvision', 'torch',
-    'tqdm',
+    # 'math', 'numpy', 'sklearn', 
+    # 'cv2', 'PIL', 'torchvision', 'torch',
+    # 'tqdm',
 ]
 
 # What packages are optional?
