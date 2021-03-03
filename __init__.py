@@ -1,5 +1,5 @@
-import .dataset
-import .plot
-import .utils
-import .trainer
-import .transforms
+from .dataset import dataset
+from .plot import plot
+from .utils import utils
+from .trainer import trainer
+from .transforms import transforms
