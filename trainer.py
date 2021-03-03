@@ -145,7 +145,6 @@ class TrainerClassifier():
   """Trainer customized for a PyTorch classifier model."""
 
   def __init__(self, model,
-               loss_function = nn.CrossEntropyLoss(),
                optimizer = torch.optim.Adam,
                *,
                checkpoint_parent_folder = 'drive/MyDrive/pytorch_boilerplate',
@@ -163,7 +162,6 @@ class TrainerClassifier():
     """
     self._init_instance_variables()
     self.model = model.to(self.device)
-    self.loss_function = loss_function
     self.optimizer = optimizer(self.model.parameters())
     self.checkpoint_parent_folder = checkpoint_parent_folder
     self.checkpoint_model_file = checkpoint_model_file
@@ -270,7 +268,9 @@ class TrainerClassifier():
     self.model.eval()
 
 
-  def predict(self, loader, return_targets=False):
+  def predict(self, dataset, *,
+            batch_size = 32, num_workers = 4, shuffle=True,
+            return_targets=False):
     """
     Calculates the classes predictions in the entire DataLoader
     Args:
@@ -281,6 +281,9 @@ class TrainerClassifier():
     self.model.eval()
     
     self.model.to(self.device)
+    
+    loader = self.create_loader(dataset,
+         batch_size = batch_size, num_workers = num_workers, shuffle=shuffle)
 
     with torch.no_grad():
       all_preds = torch.tensor([])
@@ -372,7 +375,26 @@ class TrainerClassifier():
     return loss_valid, y_true, y_pred 
 
 
-  def run(self, train_loader, valid_loader = None, *,
+  def create_loader(self, dataset, **kwargs):
+    return DataLoader(dataset, **kwargs)
+
+
+  def default_weights(self, dataset):
+    n_samples = len(dataset)
+    n_classes = len(dataset.index_to_class.keys())
+    classes = [dataset.index_to_class[i] for i in range(n_classes)]
+    index_to_count = dataset.count()
+    weights = [n_samples / index_to_count[_class] for _class in classes]
+    weight_avg = sum(weights) / len(weights)
+    weights = [w / weight_avg for w in weights]
+    
+    return weights
+
+
+  def run(self, train_dataset, valid_dataset = None, *,
+            loss_function = nn.CrossEntropyLoss,
+            batch_size = 32, num_workers = 4, shuffle=True,
+            weights = None,
             max_epochs = 10, early_stop_epochs = 5,
             ):
     """
@@ -390,6 +412,18 @@ class TrainerClassifier():
     epochs_without_improvement = 0
     self.epoch += 1
     
+    train_loader = self.create_loader(train_dataset,
+         batch_size = batch_size, num_workers = num_workers, shuffle=shuffle)
+    
+    if valid_dataset is not None:
+        valid_loader = self.create_loader(valid_dataset,
+             batch_size = batch_size, num_workers = num_workers, shuffle=shuffle)
+        
+    self.weights = weights
+    if self.weights is None: self.weights = self.default_weights(train_dataset)
+    self.weights = torch.Tensor(self.weights).to(trainer.device)
+    self.loss_function = loss_function(weight=self.weights)
+    
     for self.epoch in range(self.epoch, self.epoch + max_epochs):
       gc.collect()
 
@@ -404,7 +438,7 @@ class TrainerClassifier():
         check_loss = train_loss
 
         # ----------------- VALIDATION  ----------------- 
-        if valid_loader is not None:
+        if valid_dataset is not None:
           valid_loss, y_true, y_pred = self.step_valid(valid_loader)              
           self.metrics(y_true, y_pred)
           check_loss = valid_loss
