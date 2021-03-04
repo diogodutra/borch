@@ -129,3 +129,16 @@ class BestSquareCrop():
     best_stride = relevances.index(best_relevance)
 
     return inputs[best_stride]
+
+
+class SquarePad:
+
+"Pads the image to forcing it to be a square."
+
+    def __call__(self, tensor):
+        c, h, w = tensor.shape
+        max_wh = np.max([w, h])
+        hp = int((max_wh - w) / 2)
+        vp = int((max_wh - h) / 2)
+        padding = (hp, vp, hp, vp)
+        return F.pad(tensor, padding, 1, 'constant')

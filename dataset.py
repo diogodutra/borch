@@ -10,6 +10,66 @@ import torch
 from torch.utils.data import Dataset
 
 
+class DatasetAnnotated(Dataset):
+    """Dataset with list of filepaths and ground truths."""
+
+
+    def __init__(self, dataframe, transform=None):
+        """
+        Args:
+            dataframe (pandas DataFrame): Table with list files ('filepath') and ground truths ('label').
+            transform (callable, optional): Optional transform to be applied
+                on a sample.
+            include (list of str, optional): only include filepaths that contain
+                any of these substrings
+            exclude (list of str, optional): always exclude filepaths that contain
+                any of these substrings
+        """
+        self.transform = transform
+        
+        self.filepaths = dataframe.filepath.values
+        self.labels = dataframe.label.values
+
+
+    def __len__(self):
+        return len(self.filepaths)
+
+
+    def __getitem__(self, index):
+        if torch.is_tensor(index): index = index.tolist()
+
+        filepath = self.filepaths[int(index)]
+        image = read_image(filepath)
+
+        if self.transform:
+            image = self.transform(image)
+    
+        label = self.labels[int(index)]
+
+        return image, label
+
+
+    def plot_image(self, index=None):
+        """
+        Plots the image of a church.
+
+        Args:
+            idx (int, default random): index of the church from the dataset.filepaths list
+        """
+        if index is None: index = np.random.choice(range(len(self)))
+
+        img, tgt = self[index]
+        
+        img = to_numpy(img)
+
+        _ = plt.imshow(img)
+        filepath = '/'.join(self.filepaths[index].split('/')[-2:])
+        height, width, channels = img.shape
+        title = filepath + f' ({width} x {height})'
+        plt.gcf().patch.set_facecolor('white')
+        plt.title(title)
+
+
 class DatasetClassifier(Dataset):
     """Multi-class classification dataset."""
 
