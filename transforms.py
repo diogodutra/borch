@@ -143,3 +143,22 @@ class SquarePad:
         vp = int((max_wh - h) / 2)
         padding = (hp, vp, hp, vp)
         return tvF.pad(tensor, padding, 1, 'constant')
+
+
+class ForceSize:
+
+    "Pads the image forcing it to be at a specific size."
+    
+    def __init__(self, shape):
+    """
+    Args:
+        shape (tuple of int): width and height of output size
+    """
+        self.shape = shape
+
+    def __call__(self, tensor):
+        c, h, w = tensor.shape
+        hp = int((self.shape[0] - w) / 2)
+        vp = int((self.shape[1] - h) / 2)
+        padding = (hp, vp, hp, vp)
+        return tvF.pad(tensor, padding, 1, 'constant')
