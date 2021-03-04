@@ -1,6 +1,7 @@
 import numpy as np
 import torch
-import torch.nn.functional as F
+import torch.nn.functional as nnF
+import torchvision.transforms.functional as tvF
 from torchvision import transforms
 import torchvision.models as models
 
@@ -119,7 +120,7 @@ class BestSquareCrop():
       input = resize(input)
       input = input.unsqueeze(0)
       logits = self.classifier(input)
-      probs = F.softmax(logits, dim=1)
+      probs = nnF.softmax(logits, dim=1)
       probs = probs[0, self.relevant_classes]
       relevance = sum((self.classes_weights_dict[c] * p
                        for c, p in zip(self.relevant_classes, probs)))
@@ -133,7 +134,7 @@ class BestSquareCrop():
 
 class SquarePad:
 
-"Pads the image to forcing it to be a square."
+    "Pads the image to forcing it to be a square."
 
     def __call__(self, tensor):
         c, h, w = tensor.shape
@@ -141,4 +142,4 @@ class SquarePad:
         hp = int((max_wh - w) / 2)
         vp = int((max_wh - h) / 2)
         padding = (hp, vp, hp, vp)
-        return F.pad(tensor, padding, 1, 'constant')
+        return tvF.pad(tensor, padding, 1, 'constant')

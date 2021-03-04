@@ -10,10 +10,13 @@ import gc
 from .utils import PrintFile
 from .metrics import MetricsRegression, MetricsClassifier
 
+from borch.utils import PrintFile
+from borch.metrics import MetricsRegression, MetricsClassifier
 
-class TrainerClassifier():
 
-  """Trainer customized for a PyTorch classifier model."""
+class Trainer:
+
+  """Generic trainer customized for a PyTorch model."""
 
   def __init__(self, model,
                optimizer = torch.optim.Adam,
@@ -40,6 +43,33 @@ class TrainerClassifier():
     self.elapsed_seconds = 0
     self.print_file = PrintFile(parent_folder=checkpoint_parent_folder,
                                 timezone=timezone)
+
+
+class TrainerClassifier(Trainer):
+
+  """Trainer customized for a PyTorch classifier model."""
+
+  def __init__(self, model,
+               optimizer = torch.optim.Adam,
+               *,
+               checkpoint_parent_folder = 'drive/MyDrive/pytorch_boilerplate',
+               checkpoint_model_file = 'model.pth',
+               verbose = True,
+               timezone='America/Toronto',
+               ):
+    """
+    Args:
+        model (nn.Module): PyTorch model, preferebly pretrained (see TransferLearning class)
+        loss_function (nn.Function, default CrossEntropyLoss): Loss function
+        optimizer (torch.optim, default Adam): Optimizer for backpropagation
+        checkpoint_filename (str, default None): .pth file to save state dictionary of best model
+        verbose (bool, default True): print validation statistics every epoch
+    """
+    super().__init__(model, optimizer,
+               checkpoint_parent_folder = checkpoint_parent_folder,
+               checkpoint_model_file = checkpoint_model_file,
+               verbose = verbose,
+               timezone = timezone)
 
 
   def _init_instance_variables(self):
@@ -545,10 +575,10 @@ class TrainerRegression:
     
     for i, data in progress:
         X, y = data[0].float().to(self.device), data[1].float().to(self.device)
-        
+                
         # training step for single batch
         self.model.zero_grad()
-        outputs = self.model(X)
+        outputs = self.model(X).squeeze()
         loss = self.loss_function(outputs, y)
         loss.backward()
         self.optimizer.step()
@@ -579,12 +609,12 @@ class TrainerRegression:
       for i, data in enumerate(loader):
         X, y = data[0].float().to(self.device), data[1].float().to(self.device)
 
-        outputs = self.model(X)
+        outputs = self.model(X).squeeze()
 
         loss_cumul += self.loss_function(outputs, y)
 
         # predicted classes
-        predicted_classes = outputs#torch.max(outputs, 1)[1]
+        predicted_classes = outputs.squeeze()#torch.max(outputs, 1)[1]
 
         y_true.extend(y.cpu())
         y_pred.extend(predicted_classes.cpu())
